@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'labonewswidget.dart';
 import 'homewidget.dart';
 import 'miscellaneouswidget.dart';
-
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 void main() {
   runApp(MyApp());
 }
@@ -59,6 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    Hive.initFlutter();
     pageList.add(LaboNewsWidget());
     pageList.add(HomeWidget());
     pageList.add(MiscellaneousWidget());
@@ -68,9 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
       body: IndexedStack(
         index: _selectedPage,
         children: pageList,
