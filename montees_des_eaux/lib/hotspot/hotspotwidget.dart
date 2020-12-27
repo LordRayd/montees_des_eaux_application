@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:montees_des_eaux/pictures/photowidget.dart';
 import 'tag.dart';
+
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hive/hive.dart';
-
 import 'package:share/share.dart';
+import 'package:photo_view/photo_view.dart';
+
 import 'dart:developer';
 class HotSpotWidget extends StatefulWidget {
 
@@ -89,8 +92,16 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     return new Swiper(
       autoplay: true,
       itemBuilder: (BuildContext context, int index) {
-        return new Image.network(widget.media[index],
-          fit: BoxFit.fitHeight,
+        return InkWell(
+          child: Image.network(widget.media[index],
+            fit: BoxFit.fitHeight,
+          ),
+          onTap: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PhotoWidget(url : widget.media[index], hotspotID: widget.id,)),
+            );
+          },
         );
       },
       itemCount: widget.media.length,

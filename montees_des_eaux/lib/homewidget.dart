@@ -9,7 +9,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 import 'package:montees_des_eaux/hotspot/hotspotwidget.dart';
 import 'hotspot/tag.dart';
-import 'mapwidget.dart';
 import 'dart:developer';
 class HomeWidget extends StatefulWidget {
   @override
@@ -31,8 +30,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     name : "Nom de l'HotSpot 3",
     location : "Vannes",
     coord : {
-      "lat" : 37.222,
-      "long" : 37.222,
+      "lat" : 47.640062,
+      "long" : -2.948185,
       "alt" : 1
     },
     info: "Les informations concernant ce spot très précis 3",
@@ -90,6 +89,14 @@ class _HomeWidgetState extends State<HomeWidget> {
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: logoColor),
           labelBackgroundColor: Colors.deepOrangeAccent,
         ),
+        SpeedDialChild(
+          child: Icon(Icons.terrain, color: logoColor),
+          backgroundColor: colorChild,
+          onTap: () => _addPolygon(),
+          label: 'Dev',
+          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: logoColor),
+          labelBackgroundColor: Colors.deepOrangeAccent,
+        ),
       ],
     );
   }
@@ -126,18 +133,33 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   _addPolygon(){
+    _addMarker(hotspot);
     List<LatLng> polygonPoints = new List<LatLng>();
-    polygonPoints.add(LatLng(47.639552, -2.946299));
-    polygonPoints.add(LatLng(47.639089, -2.946972));
-    polygonPoints.add(LatLng(47.638778, -2.946371));
-    polygonPoints.add(LatLng(47.639201, -2.945668));
+    polygonPoints.add(LatLng(47.636780, -2.967870));
+    polygonPoints.add(LatLng(47.636780, -2.967600));
+    polygonPoints.add(LatLng(47.636600, -2.967600));
+    polygonPoints.add(LatLng(47.636600, -2.967870));
     setState(() {
       _polygons.add(
         Polygon(
           polygonId: PolygonId('1'),
           points: polygonPoints,
-          strokeColor: Colors.blue,
           fillColor: Colors.blue,
+          strokeWidth: 0,
+      ));
+    });
+    List<LatLng> polygonPoints2 = new List<LatLng>();
+    polygonPoints2.add(LatLng(47.636780, -2.967870));
+    polygonPoints2.add(LatLng(47.636780, -2.968070));
+    polygonPoints2.add(LatLng(47.636600, -2.968070));
+    polygonPoints2.add(LatLng(47.636600, -2.967870));
+    setState(() {
+      _polygons.add(
+        Polygon(
+          polygonId: PolygonId('2'),
+          points: polygonPoints2,
+          fillColor: Colors.blue[300],
+          strokeWidth: 0,
       ));
     });
   }
@@ -146,24 +168,29 @@ class _HomeWidgetState extends State<HomeWidget> {
     log(val.toString());
   }
   
+  _addMarker(HotSpotWidget _hotspot){
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId(_hotspot.id.toString()),
+          position: LatLng(_hotspot.coord['lat'], _hotspot.coord['long']),
+          onTap: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => _hotspot),
+            );
+          },
+        )
+      );
+    });
+  }
   void _onMapCreated(GoogleMapController controller){
     _controller = controller;
   }
 
   _buildMap(){
-    _markers.add(
-      Marker(
-        markerId: MarkerId('0'),
-        position: LatLng(47.640062, -2.948185),
-        onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => hotspot),
-          );
-        },
-      )
-    );
     return GoogleMap(
+      padding: EdgeInsets.only(bottom: 0, top: 10000, right: 0, left: 0),
       mapType: _mapType,
       myLocationEnabled: true,
       mapToolbarEnabled: false,
