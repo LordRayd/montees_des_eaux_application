@@ -107,7 +107,7 @@ class _MiscellaneousWidgetState extends State<MiscellaneousWidget> {
           Expanded(
             flex:5, // 50%
             child: FractionallySizedBox(
-              alignment: Alignment.topCenter,
+              alignment: Alignment.center,
               widthFactor: 0.5, // 50%
               heightFactor: 0.2, // 20%
               child: TextButton(
