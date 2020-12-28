@@ -17,8 +17,8 @@ class _QuizSelectionState extends State<QuizSelection> {
   /// Adresse url du serveur distant
   String server_URL = 'https://localhost/';
   /// Route sur le serveur menant aux rewards
-  String route_URL = 'quizz/names';
-
+  String route_URL = 'quiz/names';
+  /// la liste des quiz possible
   List quiz = new List();
 
   /// Charge les differents quiz possible
@@ -59,12 +59,11 @@ class _QuizSelectionState extends State<QuizSelection> {
         mainAxisSize: MainAxisSize.min,
         children: [//any widgets,
           ListView.builder(
-              shrinkWrap: true, //MUST TO ADDED
-              physics: NeverScrollableScrollPhysics(), //MUST TO ADDED
-              itemCount: quiz.length,
-              itemBuilder: (BuildContext c, int index) {
-                return QuizItem(name: quiz[index]['name']);
-              })
+            shrinkWrap: true, //MUST TO ADDED
+            physics: NeverScrollableScrollPhysics(), //MUST TO ADDED
+            itemCount: quiz.length,
+            itemBuilder: (BuildContext c, int index) => QuizItem(name: quiz[index]['name']),
+          ),
         ],
       ),
     );
