@@ -48,6 +48,7 @@ class _MiscellaneousWidgetState extends State<MiscellaneousWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          title: Center(child: Text('Choix Quiz'),),
           content: QuizSelection(),
         );
       },
