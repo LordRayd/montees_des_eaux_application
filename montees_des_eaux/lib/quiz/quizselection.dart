@@ -20,6 +20,7 @@ class _QuizSelectionState extends State<QuizSelection> {
 
   List quiz = new List();
 
+  /// Charge les differents quiz possible
   _loadQuizzes() async{
     _getQuizzes().then((result){
       for(var val in result){
@@ -27,6 +28,7 @@ class _QuizSelectionState extends State<QuizSelection> {
       }
     });
   }
+  /// Recupere les noms des quiz possible
   _getQuizzes() async{
     try {
       /*
@@ -49,6 +51,7 @@ class _QuizSelectionState extends State<QuizSelection> {
     return null;
   }
 
+  /// Retourn la liste des thèmes de quiz possible sous forme d'une listview
   _listQuiz(){
     return SingleChildScrollView( //MUST TO ADDED
       child: Column(
@@ -80,6 +83,8 @@ class _QuizSelectionState extends State<QuizSelection> {
     );
   }
 
+  /// Charge les different quiz
+  /// et retourne une listeview une fois chargé
   _body(){
     return FutureBuilder<dynamic>(
       future: _loadQuizzes(), // function where you call your api
