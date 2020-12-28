@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:montees_des_eaux/quiz/quiz.dart';
+import 'package:montees_des_eaux/quiz/quizitem.dart';
 
 class QuizSelection extends StatefulWidget {
   @override
@@ -51,7 +52,7 @@ class _QuizSelectionState extends State<QuizSelection> {
     return null;
   }
 
-  /// Retourn la liste des thèmes de quiz possible sous forme d'une listview
+  /// Retourn la liste des thèmes de quiz possible sous forme d'une listview de QuizItem
   _listQuiz(){
     return SingleChildScrollView( //MUST TO ADDED
       child: Column(
@@ -62,21 +63,7 @@ class _QuizSelectionState extends State<QuizSelection> {
               physics: NeverScrollableScrollPhysics(), //MUST TO ADDED
               itemCount: quiz.length,
               itemBuilder: (BuildContext c, int index) {
-                return Center(
-                  child: TextButton(
-                    onPressed: (){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => QuizWidget(name: quiz[index]['name'],)),
-                      );
-                    }, 
-                    child: Text(quiz[index]['name']),
-                    style: TextButton.styleFrom(
-                      primary: Colors.white,
-                      backgroundColor: Colors.blue,
-                    ),
-                  ) 
-                );
+                return QuizItem(name: quiz[index]['name']);
               })
         ],
       ),
