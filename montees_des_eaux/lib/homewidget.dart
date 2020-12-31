@@ -1,11 +1,11 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-//import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-//import 'package:flutter/rendering.dart';
-//import 'package:latlong/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'package:montees_des_eaux/hotspot/hotspotwidget.dart';
 import 'hotspot/tag.dart';
@@ -16,14 +16,119 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends State<HomeWidget> {
+
   GoogleMapController _controller;
 
   Set<Marker> _markers = new Set<Marker>();
   Set<Polygon> _polygons = new Set<Polygon>();
   MapType _mapType = MapType.normal;
+  BitmapDescriptor icon;
 
-  double timevalue = 14;
+  /// Adresse url du serveur distant
+  String server_URL = 'https://localhost/';
+  /// Route sur le serveur menant aux rewards
+  String route_URL_Markers = 'hotspots';
+  String route_URL_Polygons = 'polygons';
 
+  double timevalue = 1;
+
+  @override
+  void initState() {
+    _createIcon();
+    super.initState();
+  }
+
+  _loadBathymetrie(LatLngBounds coords) async{
+    _getBathymetrie(coords).then((result){
+      if(result != null && result.length > 0){
+        _polygons.clear();
+        int id =0;
+        for(var polygons_ in result){
+          List<LatLng> polygonsPoints = new List<LatLng>();
+          for(int i=0; i<polygons_['polygons'].length; i++){
+            polygonsPoints.add(LatLng(polygons_['polygons'][i][0], polygons_['polygons'][i][1]));
+          }
+          Color color = (polygons_['color'] == 'blue') ? Colors.blue : Colors.green;
+          _addPolygon(id, polygonsPoints, color);
+          id++;
+        }
+      }
+    });
+
+  }
+  _getBathymetrie(LatLngBounds coords) async{
+    try {
+      final client = http.Client();
+      final response = await client.get(server_URL + route_URL_Polygons +
+        '/${coords.southwest.latitude}'+
+        '/${coords.southwest.longitude}'+
+        '/${coords.northeast.latitude}'+
+        '/${coords.northeast.longitude}'+
+        '/$timevalue'
+      );
+      // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
+      final decodeData = utf8.decode(response.bodyBytes);
+      return decodeData;
+    } catch (e) {
+      // handle any exceptions here
+    }
+    return null; 
+  }
+
+  _loadHotSpots(LatLngBounds coords) async{
+    _getHotSpots(coords).then((result){
+      if(result != null && result.length > 0){
+        _markers.clear();
+        for(var hotspotInfo in result){
+          HotSpotWidget hotspot_ = HotSpotWidget(
+            id: hotspotInfo['hostspotID'],
+            name : hotspotInfo['name'],
+            location : hotspotInfo['location'],
+            coord : hotspotInfo['coord'],
+            info: hotspotInfo['info'],
+            tags : _createTag(hotspotInfo),
+            media : _createMedia(hotspotInfo)
+          );
+          _addMarker(hotspot_);
+        }
+      }
+    });
+  }
+  _getHotSpots(LatLngBounds coords) async {
+    try {
+      final client = http.Client();
+      final response = await client.get(server_URL + route_URL_Markers +
+        '/${coords.southwest.latitude}'+
+        '/${coords.southwest.longitude}'+
+        '/${coords.northeast.latitude}'+
+        '/${coords.northeast.longitude}'
+      );
+      // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
+      final decodeData = utf8.decode(response.bodyBytes);
+      return decodeData;
+    } catch (e) {
+      // handle any exceptions here
+    }
+    return null;
+  }
+  List<Tag> _createTag(hotspotInfo){
+    List<Tag> tags = new List<Tag>();
+    for(int i=0; i<hotspotInfo['tags'].length; i++){
+      tags.add(new Tag(
+        name: hotspotInfo['tags'][i]['name'], 
+        iconUrl: hotspotInfo['tags'][i]['icon']
+      ));
+    }
+    return tags;
+  }
+
+  List<String> _createMedia(hotspotInfo){
+    List<String> medias = new List<String>();
+    for(int i=0; i<hotspotInfo['media'].length; i++){
+      medias.add(hotspotInfo['media'][i]['url']);
+    }
+    return medias;
+  }
 
   HotSpotWidget hotspot = HotSpotWidget(
     id: 3,
@@ -49,6 +154,9 @@ class _HomeWidgetState extends State<HomeWidget> {
     Color colorChild = Colors.deepOrange;
     Color logoColor = Colors.white;
     return SpeedDial(
+      marginBottom: 100,
+      marginRight: 8,
+      backgroundColor: Colors.red,
       child: Icon(Icons.map),
       onOpen: () => print('OPENING DIAL'),
       onClose: () => print('DIAL CLOSED'),
@@ -92,7 +200,7 @@ class _HomeWidgetState extends State<HomeWidget> {
         SpeedDialChild(
           child: Icon(Icons.terrain, color: logoColor),
           backgroundColor: colorChild,
-          onTap: () => _addPolygon(),
+          onTap: () => _addMarker(hotspot),
           label: 'Dev',
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: logoColor),
           labelBackgroundColor: Colors.deepOrangeAccent,
@@ -101,28 +209,32 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  _buildOnMap(){
+  _sliderOnChanged(newVal){
+    setState(() {
+      timevalue = newVal;
+    });
+  }
+
+  _buildSlider(){
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Row(
           children: [
             Expanded(
-              flex: 8,
+              flex: 8, // 80%
               child: Slider(
+                activeColor: Colors.red,
+                inactiveColor: Colors.redAccent,
                 value: timevalue, 
-                onChanged: (newVal) {
-                  setState(() {
-                    timevalue = newVal;
-                  });
-                },
-                min: 14,
-                max: 18,
-                divisions: 4,
+                onChanged: _sliderOnChanged,
+                min: 0,
+                max: 2,
+                divisions: 2,
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 2, // 20%
               child: Container(),
             )
           ],
@@ -132,40 +244,16 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
-  _addPolygon(){
-    _addMarker(hotspot);
-    List<LatLng> polygonPoints = new List<LatLng>();
-    polygonPoints.add(LatLng(47.636780, -2.967870));
-    polygonPoints.add(LatLng(47.636780, -2.967600));
-    polygonPoints.add(LatLng(47.636600, -2.967600));
-    polygonPoints.add(LatLng(47.636600, -2.967870));
+  _addPolygon(int id, List<LatLng> polygonPoints, Color color){
     setState(() {
       _polygons.add(
         Polygon(
-          polygonId: PolygonId('1'),
+          polygonId: PolygonId('$id'),
           points: polygonPoints,
-          fillColor: Colors.blue,
+          fillColor: color,
           strokeWidth: 0,
       ));
     });
-    List<LatLng> polygonPoints2 = new List<LatLng>();
-    polygonPoints2.add(LatLng(47.636780, -2.967870));
-    polygonPoints2.add(LatLng(47.636780, -2.968070));
-    polygonPoints2.add(LatLng(47.636600, -2.968070));
-    polygonPoints2.add(LatLng(47.636600, -2.967870));
-    setState(() {
-      _polygons.add(
-        Polygon(
-          polygonId: PolygonId('2'),
-          points: polygonPoints2,
-          fillColor: Colors.blue[300],
-          strokeWidth: 0,
-      ));
-    });
-  }
-  _cameraPosition() async{
-    LatLngBounds val = await _controller.getVisibleRegion();
-    log(val.toString());
   }
   
   _addMarker(HotSpotWidget _hotspot){
@@ -174,23 +262,58 @@ class _HomeWidgetState extends State<HomeWidget> {
         Marker(
           markerId: MarkerId(_hotspot.id.toString()),
           position: LatLng(_hotspot.coord['lat'], _hotspot.coord['long']),
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => _hotspot),
-            );
-          },
+          icon: icon,
+          infoWindow: InfoWindow(
+            title: _hotspot.name,
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => _hotspot),
+              );
+            },
+          ),
         )
       );
     });
   }
+
+  _createIcon() async{
+    final iconData = Icons.place;
+    final pictureRecorder = PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    final iconStr = String.fromCharCode(iconData.codePoint);
+    textPainter.text = TextSpan(
+      text: iconStr,
+      style: TextStyle(
+        letterSpacing: 0.0,
+        fontSize: 100.0,
+        fontFamily: iconData.fontFamily,
+        color: Colors.red,
+      )
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, Offset(0.0, 0.0));
+    final picture = pictureRecorder.endRecording();
+    final image = await picture.toImage(100, 100);
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    setState(() {
+      icon = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());;
+    });
+  }
+
   void _onMapCreated(GoogleMapController controller){
     _controller = controller;
   }
 
+  _onCameraMovement(CameraPosition position) async{
+    LatLngBounds coords = await _controller.getVisibleRegion();
+    _loadBathymetrie(coords);
+    _loadHotSpots(coords);
+  }
+
   _buildMap(){
     return GoogleMap(
-      padding: EdgeInsets.only(bottom: 0, top: 10000, right: 0, left: 0),
       mapType: _mapType,
       myLocationEnabled: true,
       mapToolbarEnabled: false,
@@ -199,12 +322,11 @@ class _HomeWidgetState extends State<HomeWidget> {
         zoom: 14,
       ),
       onMapCreated: _onMapCreated,
+      onCameraMove: _onCameraMovement,
       markers: _markers,
       polygons: _polygons,
     );
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +341,7 @@ class _HomeWidgetState extends State<HomeWidget> {
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            child: _buildOnMap(),
+            child: _buildSlider(),
           ),
         ],
       ),

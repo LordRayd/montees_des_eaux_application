@@ -41,6 +41,8 @@ dependencies:
   flutter_map: ^0.10.1+1
   flutter_speed_dial: ^1.2.5
   photo_view: ^0.10.3
+  location: ^3.0.0
+  location_web: ^1.0.1
   
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:montees_des_eaux/pictures/photowidget.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'tag.dart';
 
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hive/hive.dart';
 import 'package:share/share.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:map_launcher/map_launcher.dart';
 
 import 'dart:developer';
 class HotSpotWidget extends StatefulWidget {
@@ -166,13 +168,23 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     );
   }
 
+  _navigationRedirection() async{
+    
+  }
   _buildButton(){
     return Row(
       children: [
         SizedBox(width: MediaQuery.of(context).size.width * 0.05,),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.4,
-          child: _buildTextButton("Y aller", (){}),
+          child: _buildTextButton("Y aller",() async{
+            final url = 'https://www.google.com/maps/search/?api=1&query=${widget.coord['lat']},${widget.coord['long']}';
+            if (await canLaunch(url)) {
+              await launch(url);
+            } else {
+              throw 'Could not launch $url';
+            }
+          }),
           
         ),
         SizedBox(width: MediaQuery.of(context).size.width * 0.1,),

@@ -29,8 +29,12 @@ class _QuizWidgetState extends State<QuizWidget> {
   String route_URL = 'quiz';
   /// La valeur que prendra le corps du widget
   /// Initialiser comme une bar de progression
-  Widget _bodyState = CircularProgressIndicator(
-    valueColor:AlwaysStoppedAnimation<Color>(Colors.blue),
+  Widget _bodyState = Scaffold(
+    body: Center(
+      child:CircularProgressIndicator(
+        valueColor:AlwaysStoppedAnimation<Color>(Colors.blue),
+      ),
+    ), 
   );
   /// La liste des questions
   List<Question> questions = new List<Question>();
