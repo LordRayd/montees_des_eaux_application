@@ -64,15 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
-            title: Text("Information"),
+            label: "Information",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            title: Text("Accueil"),
+            label: "Accueil",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.games),
-            title: Text("Quiz")
+            label: "Quiz",
           )
         ],
         currentIndex: _selectedPage,
