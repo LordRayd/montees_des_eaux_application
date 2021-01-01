@@ -7,12 +7,11 @@ import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hive/hive.dart';
 import 'package:share/share.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:map_launcher/map_launcher.dart';
 
 import 'dart:developer';
 class HotSpotWidget extends StatefulWidget {
 
-  int id;
+  var id;
   String name;
   String location;
   var coord;
@@ -225,7 +224,7 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
             SizedBox(width: MediaQuery.of(context).size.width * 0.05,),
             Text(
              widget.info, 
-            )
+            ),
           ],
         )
       ],

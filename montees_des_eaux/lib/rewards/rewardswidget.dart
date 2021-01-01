@@ -71,13 +71,13 @@ class _RewardsWidgetState extends State<RewardsWidget> {
   void updateListRewards(resultServer, resultLocal){
     setState(() {
       listRewards = List.generate(
-        resultHttpRequestTest.length, // taille de la liste
+        resultServer.length, // taille de la liste
         (i) => PreviewReward(
-          id : resultHttpRequestTest[i]['id'],
-          description: resultHttpRequestTest[i]['description'],
-          previewText : resultHttpRequestTest[i]['previewText'],
-          url : resultHttpRequestTest[i]['media'],
-          level : (resultLocal.contains(resultHttpRequestTest[i]['id']) ? resultHttpRequestTest[i]['level'] : 5),
+          id : resultServer[i]['id'],
+          description: resultServer[i]['description'],
+          previewText : resultServer[i]['previewText'],
+          url : resultServer[i]['media'],
+          level : (resultLocal.contains(resultServer[i]['id']) ? resultServer[i]['level'] : 5),
         )
       );
     });
@@ -91,7 +91,7 @@ class _RewardsWidgetState extends State<RewardsWidget> {
       //  return;
       //}
       getRewardsFromLocal().then((listId) { // TODO changer null par result
-        updateListRewards(null,listId); // TODO changer null par result
+        updateListRewards(resultHttpRequestTest,listId); // TODO changer resultHttpRequestTest par result
       });
     //});
   }
@@ -103,7 +103,6 @@ class _RewardsWidgetState extends State<RewardsWidget> {
     for(int i=0; i< rewards.length; i++){
       list.add(rewards.get(i));
     }
-    rewards.close();
     return list;
   }
 

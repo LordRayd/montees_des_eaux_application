@@ -9,11 +9,14 @@ import 'package:montees_des_eaux/quiz/quizend.dart';
 
 class QuizWidget extends StatefulWidget {
 
+  // L identifiant du quiz
+  var id;
   /// Le nom du Quiz
   String name;
   /// Constructeur de l'objet
   QuizWidget({
-    Key key, 
+    Key key,
+    @required this.id,
     @required this.name
   }): super(key: key);
 
@@ -24,7 +27,7 @@ class QuizWidget extends StatefulWidget {
 class _QuizWidgetState extends State<QuizWidget> {
 
   /// Le serveur su lequel aller chercher l'information
-  String server_URL = 'http://localhost/';
+  String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// La route spécifique des quiz
   String route_URL = 'quiz';
   /// La valeur que prendra le corps du widget
@@ -41,6 +44,8 @@ class _QuizWidgetState extends State<QuizWidget> {
   /// La liste des réponses données
   List<int> result = new List<int>();
 
+  int quizId;
+
   @override
   void initState() {
     super.initState();
@@ -51,10 +56,10 @@ class _QuizWidgetState extends State<QuizWidget> {
   _loadQuiz() async{
     await getQuiz().then((result) {
       int indexQuestion = 1;
-
+      quizId = result['quizId'];
       for(var _questions in result['questions']){
 
-        QuestionStatement st = QuestionStatement(statement: _questions['question']);
+        QuestionStatement st = QuestionStatement(statement: _questions['Question']);
         List<Answer> _answers = new List<Answer>();
         int indexAnswer = 0;
 
@@ -71,192 +76,16 @@ class _QuizWidgetState extends State<QuizWidget> {
 
   /// Récupère les informations du quiz ayant pour nom le [widget.name]
   getQuiz() async{
-    /*try {
+    try {
       final client = http.Client();
-      final response = await client.get(server_URL+route_URL +'/'+ widget.name);
+      final response = await client.get(server_URL+route_URL +'/'+ widget.id);
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }
-    return null;*/
-    return {
-      'name' : 'Plage',
-      'questions' : [
-        {
-          'question' : 'Quelle ville est la capital de la France ?',
-          'answers' : [
-            {
-              'answer' : 'Paris',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Marseille',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'Lorient',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'Vannes',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        },{
-          'question' : 'Pourquoi ?',
-          'answers' : [
-            {
-              'answer' : 'Pourquoi pas ?',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : '42',
-              'isGoodAnswer' : 1
-            },{
-              'answer' : 'Parce que',
-              'isGoodAnswer' : 0
-            },{
-              'answer' : 'lol',
-              'isGoodAnswer' : 0
-            }
-          ]
-        }
-      ]
-    };
+    return null;
   }
 
   /// Lance chacune des question après leurs créations
@@ -285,7 +114,7 @@ class _QuizWidgetState extends State<QuizWidget> {
       Navigator.of(context).pop();
     } else {
       setState(() {
-        _bodyState = QuizEnd(result: result, questions: questions,);
+        _bodyState = QuizEnd(quizId: quizId, result: result, questions: questions,);
       });
     }    
   }

@@ -53,7 +53,7 @@ class _GalleryWidgetState extends State<GalleryWidget> {
       future: _loadFavoritesPictures(), // function where you call your api
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {  // AsyncSnapshot<Your object type>
         if( snapshot.connectionState == ConnectionState.waiting){
-            return  Center(child: Text('Chargement des lieux préférés'));
+            return  Center(child: Text('Chargement des photos préférés'));
         } else {
             if (snapshot.hasError)
               return Center(child: Text('Error: ${snapshot.error}'));
@@ -72,7 +72,7 @@ class _GalleryWidgetState extends State<GalleryWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Mes lieux favoris"),
+        title: Text("Mes Photos favoris"),
       ),
       body: _body(),
     );

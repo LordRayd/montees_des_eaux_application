@@ -3,11 +3,14 @@ import 'package:montees_des_eaux/quiz/quiz.dart';
 
 class QuizItem extends StatefulWidget {
 
+  var id;
+
   /// Nom du possible quiz utilisable
   String name;
 
   QuizItem({
     Key key, 
+    @required this.id,
     @required this.name
   }) : super(key: key);
 
@@ -27,7 +30,7 @@ class _QuizItemState extends State<QuizItem> {
             Navigator.of(context).pop(false); // ferme l'alerte dialog de MiscellaneousWidget
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => QuizWidget(name: widget.name,)),
+              MaterialPageRoute(builder: (context) => QuizWidget(id: widget.id, name: widget.name,)),
             );
           }, 
           child: Text(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -12,37 +14,29 @@ class QuizSelection extends StatefulWidget {
 class _QuizSelectionState extends State<QuizSelection> {
 
   /// Adresse url du serveur distant
-  String server_URL = 'https://localhost/';
+  String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// Route sur le serveur menant aux rewards
-  String route_URL = 'quiz/names';
+  String route_URL = 'quizzes/names';
   /// la liste des quiz possible
   List quiz = new List();
 
   /// Charge les differents quiz possible
   _loadQuizzes() async{
-    _getQuizzes().then((result){
+    await _getQuizzes().then((result){
       for(var val in result){
         quiz.add(val);
       }
     });
   }
+  
   /// Recupere les noms des quiz possible
   _getQuizzes() async{
     try {
-      /*
       final client = http.Client();
       final response = await client.get(server_URL + route_URL);
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
-      */
-      return [{
-        'name' : 'Random',
-        'id' : 1
-      },{
-        'name' : 'Plage',
-        'id' : 2
-      }];
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }
@@ -59,7 +53,7 @@ class _QuizSelectionState extends State<QuizSelection> {
             shrinkWrap: true, //MUST TO ADDED
             physics: NeverScrollableScrollPhysics(), //MUST TO ADDED
             itemCount: quiz.length,
-            itemBuilder: (BuildContext c, int index) => QuizItem(name: quiz[index]['name']),
+            itemBuilder: (BuildContext c, int index) => QuizItem(id: quiz[index]['_id'], name: quiz[index]['name']),
           ),
         ],
       ),
@@ -73,10 +67,10 @@ class _QuizSelectionState extends State<QuizSelection> {
       future: _loadQuizzes(), // function where you call your api
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {  // AsyncSnapshot<Your object type>
         if( snapshot.connectionState == ConnectionState.waiting){
-            return Center(child: CircularProgressIndicator());
+            return Container(height: 0,);
         } else {
           if (snapshot.hasError)
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Container(height: 0,);
           else {
             return _listQuiz();
           }

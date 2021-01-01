@@ -25,9 +25,10 @@ class _HomeWidgetState extends State<HomeWidget> {
   BitmapDescriptor icon;
 
   /// Adresse url du serveur distant
-  String server_URL = 'https://localhost/';
-  /// Route sur le serveur menant aux rewards
+  String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
+  /// Route sur le serveur menant aux hotspots
   String route_URL_Markers = 'hotspots';
+  /// Route sur le serveur menant aux hotspots
   String route_URL_Polygons = 'polygons';
 
   double timevalue = 1;
@@ -58,17 +59,34 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
   _getBathymetrie(LatLngBounds coords) async{
     try {
-      final client = http.Client();
-      final response = await client.get(server_URL + route_URL_Polygons +
-        '/${coords.southwest.latitude}'+
-        '/${coords.southwest.longitude}'+
-        '/${coords.northeast.latitude}'+
-        '/${coords.northeast.longitude}'+
-        '/$timevalue'
+      final response = await http.post(
+        server_URL + route_URL_Polygons,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'time' : timevalue, //0 passé, 1 présent, 2 futur
+          'sw' : {
+            'lat' : coords.southwest.latitude,
+            'lon' : coords.southwest.longitude
+          },
+          'ne' : {
+            'lat' : coords.northeast.latitude,
+            'lon' : coords.northeast.longitude
+          },
+          'se' : {
+            'lat' : coords.southwest.latitude,
+            'lon' : coords.northeast.longitude
+          },
+          'nw' : {
+            'lat' : coords.northeast.latitude,
+            'lon' : coords.southwest.longitude
+          }
+        }),
       );
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }
@@ -96,12 +114,29 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
   _getHotSpots(LatLngBounds coords) async {
     try {
-      final client = http.Client();
-      final response = await client.get(server_URL + route_URL_Markers +
-        '/${coords.southwest.latitude}'+
-        '/${coords.southwest.longitude}'+
-        '/${coords.northeast.latitude}'+
-        '/${coords.northeast.longitude}'
+      final response = await http.post(
+        server_URL + route_URL_Markers,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({
+          'sw' : {
+            'lat' : coords.southwest.latitude,
+            'lon' : coords.southwest.longitude
+          },
+          'ne' : {
+            'lat' : coords.northeast.latitude,
+            'lon' : coords.northeast.longitude
+          },
+          'se' : {
+            'lat' : coords.southwest.latitude,
+            'lon' : coords.northeast.longitude
+          },
+          'nw' : {
+            'lat' : coords.northeast.latitude,
+            'lon' : coords.southwest.longitude
+          }
+        }),
       );
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
