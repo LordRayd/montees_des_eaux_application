@@ -3,12 +3,23 @@ import 'package:montees_des_eaux/hotspot/tag.dart';
 import 'package:montees_des_eaux/hotspot/hotspotwidget.dart';
 class HotSpotItem extends StatefulWidget {
 
-  int id;
+  /// L'identifiant du hotspot
+  var id;
+  /// Le nom du hotspot
   String name;
+  /// La localisation (Ville)
   String location;
-  var coord;
+  /// La latitude a laquelle se trouve le hotspot
+  double latitude;
+  /// La longitude du hotspot
+  double longitude;
+  /// L'altitude du hotspot
+  double altitude;
+  /// Les informations qui caractérise le hotspot
   String info;
+  /// Une liste de Tags affecter au hotspot
   List<Tag> tags;
+  /// La liste des photos (url) du hotspot
   List<String> media;
 
   HotSpotItem({
@@ -16,7 +27,9 @@ class HotSpotItem extends StatefulWidget {
     @required this.id, 
     @required this.name, 
     @required this.location, 
-    @required this.coord, 
+    @required this.latitude, 
+    @required this.longitude,
+    this.altitude, 
     @required this.info,
     @required this.tags,
     @required this.media,
@@ -82,7 +95,8 @@ class _HotSpotItemState extends State<HotSpotItem> {
         id: widget.id,
         name: widget.name,
         location: widget.location,
-        coord: widget.coord,
+        latitude: widget.latitude,
+        longitude: widget.longitude,
         info: widget.info,
         tags: widget.tags,
         media: widget.media,

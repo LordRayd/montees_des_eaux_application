@@ -15,62 +15,39 @@ class FavoriteHotSpotWidget extends StatefulWidget {
 class _FavoriteHotSpotWidgetState extends State<FavoriteHotSpotWidget> {
 
   /// Adresse url du serveur distant
-  String server_URL = 'https://localhost/';
+  String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// Route sur le serveur menant aux rewards
   String route_URL = 'hotspot';
-  /// 
+  /// La liste de tous les resultats de hotspots
   List globresult = new List();
 
+  /// Charge tous les lieux favories
   loadFavortesHotspots() async{
     final hotspots = await Hive.openBox('hotspots');
-    //await hotspots.clear();
-    //hotspots.add(1);
-    //hotspots.add(2);
     for(int i=0; i< hotspots.length; i++){
       await getHostSpotInfo(hotspots.get(i)).then( (result) => {
-        globresult.add(result)
+        if(result != null){
+          globresult.add(result)
+        }
       });
     }
   }
 
+  /// Retourne les infos d'un hotspot particulier
   getHostSpotInfo(id) async {
-    return {
-      "hostspotID": id, 
-      "name": "Nom de l'HotSpot $id",
-      "location" : "Vannes",
-      "coord":{
-        "lat" : 37.222,
-        "long" : 37.222,
-        "alt" : 1
-      },
-      "info" : "Les informations concernant ce spot très précis $id",
-      "media" : [{
-        'url' : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG"
-      },{
-        'url' : "https://www.dreamyachtcharter.com/wp-content/uploads/2019/02/anse-aux-prunes-e1550620631305.jpg"
-      }], 
-      "tags" : [
-        {
-          "name" : "Rique eau",
-          "icon" : "https://cdn.icon-icons.com/icons2/721/PNG/512/rain_weather_water_icon-icons.com_62506.png"
-        },{
-          "name" : "Risque sable",
-          "icon" : "https://cdn.icon-icons.com/icons2/645/PNG/512/cubo_arena_playa_icon-icons.com_59608.png"
-        }]
-    };
-    /*
     try {
       final client = http.Client();
       final response = await client.get(server_URL + route_URL +'/$id');
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }
-    return null;*/
+    return null;
   }
 
+  /// Widget a renvoyer si pas de lieu favoris
   _noFavoriteText() {
     return Center(
       child: Text(
@@ -79,6 +56,7 @@ class _FavoriteHotSpotWidgetState extends State<FavoriteHotSpotWidget> {
     );
   }
 
+  /// Crée une liste de tag pour le hotspot a l [index] dans [globresult]
   List<Tag> createTag(index){
     List<Tag> tags = new List<Tag>();
     for(int i=0; i<globresult[index]['tags'].length; i++){
@@ -90,6 +68,7 @@ class _FavoriteHotSpotWidgetState extends State<FavoriteHotSpotWidget> {
     return tags;
   }
 
+  /// Crée une liste de media pour le hotspot a l [index] dans [globresult]
   List<String> createMedia(index){
     List<String> medias = new List<String>();
     for(int i=0; i<globresult[index]['media'].length; i++){
@@ -98,16 +77,20 @@ class _FavoriteHotSpotWidgetState extends State<FavoriteHotSpotWidget> {
     return medias;
   }
 
+  /// Crée la widget listview des hotspots favories
+  /// Utilise des HotSpotItem
   _listViewHostSpots() {
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemCount: globresult.length,
       itemBuilder: (BuildContext context, int index) {
         return HotSpotItem(
-          id: globresult[index]['hostspotID'],
+          id: globresult[index]['_id'],
           name : globresult[index]['name'],
           location : globresult[index]['location'],
-          coord : globresult[index]['coord'],
+          latitude: globresult[index]['coords']['coordinates'][1],
+          longitude : globresult[index]['coords']['coordinates'][0],
+          altitude: globresult[index]['altitude'],
           info: globresult[index]['info'],
           tags : createTag(index),
           media : createMedia(index)
@@ -117,6 +100,8 @@ class _FavoriteHotSpotWidgetState extends State<FavoriteHotSpotWidget> {
     );
   }
 
+  /// Le corps de l'affichage des lieux favories
+  /// Retourne une valeur après le retour de la methode [loadFavortesHotspots]
   _body() {
     return FutureBuilder<dynamic>(
       future: loadFavortesHotspots(), // function where you call your api

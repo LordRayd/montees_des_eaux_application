@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -17,20 +16,23 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
 
+  /// Le controlleur de la carte
   GoogleMapController _controller;
-
+  /// La liste des markers afficher sur la crate
   Set<Marker> _markers = new Set<Marker>();
+  /// La liste des polygons afficher sur la carte
   Set<Polygon> _polygons = new Set<Polygon>();
+  /// Le type de carte
   MapType _mapType = MapType.normal;
+  /// L'icone des marker
   BitmapDescriptor icon;
-
   /// Adresse url du serveur distant
   String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// Route sur le serveur menant aux hotspots
   String route_URL_Markers = 'hotspots';
   /// Route sur le serveur menant aux hotspots
   String route_URL_Polygons = 'polygons';
-
+  /// La valeur du slider de temps
   double timevalue = 1;
 
   @override
@@ -39,6 +41,8 @@ class _HomeWidgetState extends State<HomeWidget> {
     super.initState();
   }
 
+  /// Recupère les données bathymétrique du serveur depuis des coordonnées précise
+  /// Et les ajoute a [_polygons]
   _loadBathymetrie(LatLngBounds coords) async{
     _getBathymetrie(coords).then((result){
       if(result != null && result.length > 0){
@@ -55,8 +59,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         }
       }
     });
-
   }
+
+  /// Recupere les données bathymétrique
   _getBathymetrie(LatLngBounds coords) async{
     try {
       final response = await http.post(
@@ -93,16 +98,20 @@ class _HomeWidgetState extends State<HomeWidget> {
     return null; 
   }
 
+  /// Charge les hotspots et les ajoute à [_markers]
   _loadHotSpots(LatLngBounds coords) async{
-    _getHotSpots(coords).then((result){
+    await _getHotSpots(coords).then((result){
+      setState(() {
+        _markers.clear();  
+      });
       if(result != null && result.length > 0){
-        _markers.clear();
         for(var hotspotInfo in result){
           HotSpotWidget hotspot_ = HotSpotWidget(
-            id: hotspotInfo['hostspotID'],
+            id: hotspotInfo['_id'],
             name : hotspotInfo['name'],
             location : hotspotInfo['location'],
-            coord : hotspotInfo['coord'],
+            latitude : hotspotInfo['coords']['coordinates'][1],
+            longitude : hotspotInfo['coords']['coordinates'][0],
             info: hotspotInfo['info'],
             tags : _createTag(hotspotInfo),
             media : _createMedia(hotspotInfo)
@@ -112,6 +121,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       }
     });
   }
+  /// Recupère les hotspots afficher antre les coordonnées afficher par l'écran
   _getHotSpots(LatLngBounds coords) async {
     try {
       final response = await http.post(
@@ -140,12 +150,14 @@ class _HomeWidgetState extends State<HomeWidget> {
       );
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }
     return null;
   }
+
+  /// Crée une liste de tag
   List<Tag> _createTag(hotspotInfo){
     List<Tag> tags = new List<Tag>();
     for(int i=0; i<hotspotInfo['tags'].length; i++){
@@ -157,6 +169,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     return tags;
   }
 
+  /// Crée une liste de média 
   List<String> _createMedia(hotspotInfo){
     List<String> medias = new List<String>();
     for(int i=0; i<hotspotInfo['media'].length; i++){
@@ -165,26 +178,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     return medias;
   }
 
-  HotSpotWidget hotspot = HotSpotWidget(
-    id: 3,
-    name : "Nom de l'HotSpot 3",
-    location : "Vannes",
-    coord : {
-      "lat" : 47.640062,
-      "long" : -2.948185,
-      "alt" : 1
-    },
-    info: "Les informations concernant ce spot très précis 3",
-    tags : [
-      Tag(name : "Rique eau", iconUrl: "https://cdn.icon-icons.com/icons2/721/PNG/512/rain_weather_water_icon-icons.com_62506.png"),
-      Tag(name: "Risque sable",iconUrl: "https://cdn.icon-icons.com/icons2/645/PNG/512/cubo_arena_playa_icon-icons.com_59608.png",)
-    ],
-    media : [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG",
-      "https://www.dreamyachtcharter.com/wp-content/uploads/2019/02/anse-aux-prunes-e1550620631305.jpg"
-    ]
-  );
-
+  /// Affiche le menu de changement de fond de carte
   _buildPopUpMenu(){
     Color colorChild = Colors.deepOrange;
     Color logoColor = Colors.white;
@@ -232,24 +226,21 @@ class _HomeWidgetState extends State<HomeWidget> {
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: logoColor),
           labelBackgroundColor: Colors.deepOrangeAccent,
         ),
-        SpeedDialChild(
-          child: Icon(Icons.terrain, color: logoColor),
-          backgroundColor: colorChild,
-          onTap: () => _addMarker(hotspot),
-          label: 'Dev',
-          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: logoColor),
-          labelBackgroundColor: Colors.deepOrangeAccent,
-        ),
       ],
     );
   }
 
-  _sliderOnChanged(newVal){
+  /// execute a chaque changement du slider le refresh des données bathymétriques
+  _sliderOnChanged(newVal) async{
     setState(() {
       timevalue = newVal;
     });
+    print(timevalue);
+    LatLngBounds coords = await _controller.getVisibleRegion();
+    _loadBathymetrie(coords);
   }
 
+  /// Construit le slider
   _buildSlider(){
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -279,6 +270,7 @@ class _HomeWidgetState extends State<HomeWidget> {
     );
   }
 
+  /// Permet l'ajout d'un poluygons à [_polygons] à partir des données fournies
   _addPolygon(int id, List<LatLng> polygonPoints, Color color){
     setState(() {
       _polygons.add(
@@ -291,12 +283,13 @@ class _HomeWidgetState extends State<HomeWidget> {
     });
   }
   
+  /// Ajoute un hotspot a la liste de [_markers] avec les données du [_hotspot]
   _addMarker(HotSpotWidget _hotspot){
     setState(() {
       _markers.add(
         Marker(
-          markerId: MarkerId(_hotspot.id.toString()),
-          position: LatLng(_hotspot.coord['lat'], _hotspot.coord['long']),
+          markerId: MarkerId(_hotspot.id),
+          position: LatLng(_hotspot.latitude, _hotspot.longitude),
           icon: icon,
           infoWindow: InfoWindow(
             title: _hotspot.name,
@@ -311,7 +304,15 @@ class _HomeWidgetState extends State<HomeWidget> {
       );
     });
   }
+  /// Ajoute une liste de HotSpotWidget à la carte
+  _addMarkers(List<HotSpotWidget> list){
+    log(list.length.toString());
+    for(int i=0; i<list.length; i++){
+      _addMarker(list[i]);
+    }
+  }
 
+  /// Crée l'icon des markers
   _createIcon() async{
     final iconData = Icons.place;
     final pictureRecorder = PictureRecorder();
@@ -337,16 +338,20 @@ class _HomeWidgetState extends State<HomeWidget> {
     });
   }
 
+  /// Recupère le controleur de la map dans la variable [_controller]
   void _onMapCreated(GoogleMapController controller){
     _controller = controller;
   }
 
-  _onCameraMovement(CameraPosition position) async{
+  /// Action a faire a chaque fin de mouvement de carte
+  /// Charge les nouveaux hotspots et la bathymétrie
+  _onCameraMovement() async{
     LatLngBounds coords = await _controller.getVisibleRegion();
-    _loadBathymetrie(coords);
+    //_loadBathymetrie(coords);
     _loadHotSpots(coords);
   }
 
+  /// Construit la carte
   _buildMap(){
     return GoogleMap(
       mapType: _mapType,
@@ -357,9 +362,9 @@ class _HomeWidgetState extends State<HomeWidget> {
         zoom: 14,
       ),
       onMapCreated: _onMapCreated,
-      onCameraMove: _onCameraMovement,
       markers: _markers,
       polygons: _polygons,
+      onCameraIdle: _onCameraMovement,
     );
   }
 

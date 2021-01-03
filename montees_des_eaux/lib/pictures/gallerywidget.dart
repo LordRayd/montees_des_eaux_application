@@ -9,8 +9,10 @@ class GalleryWidget extends StatefulWidget {
 
 class _GalleryWidgetState extends State<GalleryWidget> {
 
+  /// La liste des photos qui doivent être afficher
   List<PhotoWidget> galleryItems = new List<PhotoWidget>();
   
+  /// Construit la grille des photos
   Widget _buildGrid() => GridView.extent(
     maxCrossAxisExtent: 150,
     padding: const EdgeInsets.all(4),
@@ -19,6 +21,7 @@ class _GalleryWidgetState extends State<GalleryWidget> {
     children: _buildGridTileList(galleryItems.length),
   );
 
+  /// Construit les elements de la liste
   List<Container> _buildGridTileList(int count) => List.generate(
     count, (i) => Container(
       child: InkWell(
@@ -32,7 +35,8 @@ class _GalleryWidgetState extends State<GalleryWidget> {
       )
     )
   );
-    
+
+  /// Le widget de texte a afficher si pas de favorie  
   _noFavoriteText(){
     return Center(
       child: Text(
@@ -41,13 +45,18 @@ class _GalleryWidgetState extends State<GalleryWidget> {
     );
   }
 
+  /// Charge les images mise en favories
   _loadFavoritesPictures() async{
     var photos = await Hive.openBox('favoritePhoto');
     for(int i=0; i<photos.length; i++){
-      galleryItems.add(PhotoWidget(url: photos.getAt(i)['url'], hotspotID: photos.getAt(i)['hotspotID']) );
+      galleryItems.add(PhotoWidget(
+        url: photos.getAt(i)['url'], 
+        hotspotID: photos.getAt(i)['hotspotID']) 
+      );
     }
   }
 
+  /// Construit le corps du widget après l'execution de [_loadFavoritesPictures]
   _body(){
     return FutureBuilder<dynamic>(
       future: _loadFavoritesPictures(), // function where you call your api

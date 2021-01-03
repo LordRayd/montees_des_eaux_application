@@ -2,13 +2,17 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:montees_des_eaux/quiz/question.dart';
 import 'package:montees_des_eaux/rewards/rewardobtention.dart';
 import 'package:montees_des_eaux/rewards/rewardwidget.dart';
 
 class QuizEnd extends StatefulWidget {
 
-  int quizId;
+  /// L'identifiant du quiz
+  var quizId;
   /// La liste des réponse donné
   List<int> result;
   /// La liste des questions posés
@@ -28,8 +32,7 @@ class QuizEnd extends StatefulWidget {
 class _QuizEndState extends State<QuizEnd> {
 
   /// Le pourcentage de bonne réponse
-  double pourcent = 0.0;
-  
+  double percent = 0.0;
   /// Adresse url du serveur distant
   String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// Route sur le serveur menant aux hotspots
@@ -37,49 +40,59 @@ class _QuizEndState extends State<QuizEnd> {
 
   @override
   void initState() {
+    
     // calcul le pourcentage de bonne réponse
     for(int i=0; i<widget.result.length; i++){
-      if(widget.questions[i].answers[widget.result[i]].isGood==1) pourcent++;
+      if(widget.questions[i].answers[widget.result[i]].isGood==true) percent++;
     }
-    pourcent = (pourcent / widget.result.length)*100;
-    _loadRewards(pourcent);
+    percent = (percent / widget.result.length)*100;
+    _loadRewards();
     super.initState();
   }
 
-  _loadRewards(percent) async{
-    _getRewards().then((result) async {
-      getRewardsFromLocal().then((listId){
-        List<RewardWidget> list_reward = new List<RewardWidget>();
-        for(var reward in result){
-          bool isOwned = false;
-          for(int i=0; i<listId.length; i++){
-            if(listId[i] == reward['id']){
-              isOwned = true;
-            }
+  /// Charge tous les rewards en lien avec le quiz
+  _loadRewards() async{
+    await _getRewards().then((result) async {
+      if(result != null && result.length > 0){
+        await getRewardsFromLocal().then((listId){
+          List<RewardWidget> list_reward = new List<RewardWidget>();
+          for(var reward in result){
+            if(percent>= reward['percentageObtention']){
+              bool isOwned = false;
+              for(int i=0; i<listId.length; i++){
+                if(listId[i] == reward['_id']){
+                  isOwned = true;
+                }
+              }
+              if(isOwned==false){
+                log(reward['_id']);
+                addRewardLocal(reward['_id']);
+                list_reward.add(
+                  RewardWidget(
+                    id: reward['_id'],
+                    previewText: reward['previewText'],
+                    description: reward['description'],
+                    url: reward['media'],
+                    level: reward['level'],
+                    percentObtention: reward['percentageObtention'].toDouble(),
+                    quizId: reward['quizId'],
+                  )
+                );
+              }
+            }            
           }
-          if(isOwned==false){
-            addRewardLocal(reward['id']);
-            list_reward.add(
-              RewardWidget(
-                id: reward['id'],
-                previewText: reward['previewText'],
-                description: reward['description'],
-                url: reward['media'],
-                level: reward['level'],
-              )
-            );
-          }
-          
-        }
-        _printRewards(list_reward);
-        
-      });      
+          _printRewards(list_reward);
+        });     
+      }
     });
   }
+  /// Ajoute le rewards au recompenses obtenues par son id
   addRewardLocal(id) async{
     var rewards = await Hive.openBox('rewards');
     rewards.add(id);
   }
+
+  /// Retourne les rewards deja obtenues
   getRewardsFromLocal() async{
     final rewards = await Hive.openBox('rewards');
     List<String> list = new List<String>();
@@ -88,6 +101,8 @@ class _QuizEndState extends State<QuizEnd> {
     }
     return list;
   }
+
+  /// Affiche les rewards qui viennent juste d'être obtenues
   _printRewards(List<RewardWidget> list_reward){
     if(list_reward.length > 0) {
       showDialog(
@@ -108,8 +123,9 @@ class _QuizEndState extends State<QuizEnd> {
     }
   }
 
+  /// Recupère les rewards avec le [quiId] depuis le serveur
   _getRewards() async{
-    /*try {
+    try {
       final client = http.Client();
       final response = await client.get(server_URL+route_URL +'/'+ widget.quizId);
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
@@ -118,32 +134,7 @@ class _QuizEndState extends State<QuizEnd> {
     } catch (e) {
       // handle any exceptions here
     }
-    return null;*/
-    return [{
-      "id":"identifiant0", 
-      "previewText": "Text Preview Test  0", 
-      "description":"Une description plus complete de l'element 0", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 0,
-      "quizId" : widget.quizId,
-      "percentObtention" : 33
-    },{
-      "id":"identifiant1", 
-      "previewText": "Text Preview Test 1", 
-      "description":"Une description plus complete de l'element 1", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 1,
-      "quizId" : widget.quizId,
-      "percentObtention" : 66
-    }/*,{
-      "id":"identifiant2", 
-      "previewText": "Text Preview Test 2", 
-      "description":"Une description plus complete de l'element 2", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 2,
-      "quizId" : widget.quizId,
-      "percentObtention" : 100
-    }*/];
+    return null;
   }
 
   /// Icone en cas de mauvaise réponse
@@ -177,7 +168,7 @@ class _QuizEndState extends State<QuizEnd> {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(
-            "Vous avez obtenus $pourcent % de bonnes réponses",
+            "Vous avez obtenus ${percent.toInt()}% de bonnes réponses",
           ),
         ],
       ),
@@ -204,7 +195,7 @@ class _QuizEndState extends State<QuizEnd> {
             widget.questions[index].answers[widget.result[index]].answer,
           ),
         ),
-        (widget.questions[index].answers[widget.result[index]].isGood==1) 
+        (widget.questions[index].answers[widget.result[index]].isGood==true) 
           ? goodAnswer
           : badAnswer 
       ],

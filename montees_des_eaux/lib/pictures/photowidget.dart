@@ -5,17 +5,27 @@ import 'package:share/share.dart';
 
 class PhotoWidget extends StatefulWidget {
 
+  /// L'url de la photo
   String url;
-  int hotspotID;
-  PhotoWidget({Key key, @required this.url, @required this.hotspotID,}) : super(key: key);
+  /// L'identifiant du hotspot
+  var hotspotID;
+
+  PhotoWidget({
+    Key key, 
+    @required this.url, 
+    @required this.hotspotID,
+  }) : super(key: key);
   @override
+  
   _PhotoWidgetState createState() => _PhotoWidgetState();
 }
 
 class _PhotoWidgetState extends State<PhotoWidget> {
 
+  /// Vrai si la photo est favorite, fausse sinon
   bool _isfavorite = false;
 
+  /// Charge les photos Favorite
   loadFavorite() async {
     var photos = await Hive.openBox('favoritePhoto');
     for(int i=0; i<photos.length; i++){
@@ -25,6 +35,7 @@ class _PhotoWidgetState extends State<PhotoWidget> {
     }
   }
 
+  /// Définit les actions a faire quand on appuie sur le boutons favorie
   _favoriteButtonAction() {
     if(_isfavorite){
       removeFromLocal().then((result) => {
@@ -41,6 +52,7 @@ class _PhotoWidgetState extends State<PhotoWidget> {
     }
   }
 
+  /// Ajoute l'image au favories local
   addLocal() async {
     var photos = await Hive.openBox('favoritePhoto');
     var save = {
@@ -49,6 +61,7 @@ class _PhotoWidgetState extends State<PhotoWidget> {
     };
     photos.add(save);
   }
+  /// Retire l'image des favories
   removeFromLocal() async{
     var photos = await Hive.openBox('favoritePhoto');
     List list = new List();
@@ -63,6 +76,7 @@ class _PhotoWidgetState extends State<PhotoWidget> {
     }
   }
 
+  /// Définit l'action de partage de la photo
   _shareAction() async{
     final RenderBox box = context.findRenderObject();
     
@@ -71,6 +85,7 @@ class _PhotoWidgetState extends State<PhotoWidget> {
           sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
+  /// Constuit le bouton de favorie après l'éxécution de [loadFavorite]
   _buildFavButton() {
     return FutureBuilder<dynamic>(
       future: loadFavorite(), // function where you call your api

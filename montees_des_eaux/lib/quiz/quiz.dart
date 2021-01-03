@@ -13,6 +13,7 @@ class QuizWidget extends StatefulWidget {
   var id;
   /// Le nom du Quiz
   String name;
+  
   /// Constructeur de l'objet
   QuizWidget({
     Key key,
@@ -44,8 +45,6 @@ class _QuizWidgetState extends State<QuizWidget> {
   /// La liste des réponses données
   List<int> result = new List<int>();
 
-  int quizId;
-
   @override
   void initState() {
     super.initState();
@@ -56,19 +55,31 @@ class _QuizWidgetState extends State<QuizWidget> {
   _loadQuiz() async{
     await getQuiz().then((result) {
       int indexQuestion = 1;
-      quizId = result['quizId'];
       for(var _questions in result['questions']){
 
-        QuestionStatement st = QuestionStatement(statement: _questions['Question']);
+        QuestionStatement st = QuestionStatement(statement: _questions['question']);
         List<Answer> _answers = new List<Answer>();
         int indexAnswer = 0;
 
         for(var answers in _questions['answers']){
-          _answers.add(Answer(answer: answers['answer'],isGood: answers['isGoodAnswer'],indexInList: indexAnswer,));
+          _answers.add(
+            Answer(
+              answer: answers['answer'],
+              isGood: answers['isGoodAnswer'],
+              indexInList: indexAnswer,
+            )
+          );
           indexAnswer++;
         }
 
-        questions.add(Question(statement: st,answers: _answers, index: indexQuestion,));
+        questions.add(
+          Question(
+            statement: st,
+            answers: _answers,
+            index: indexQuestion,
+            justification: _questions['justification'],
+          )
+        );
         indexQuestion++;
       }      
     });
@@ -114,7 +125,7 @@ class _QuizWidgetState extends State<QuizWidget> {
       Navigator.of(context).pop();
     } else {
       setState(() {
-        _bodyState = QuizEnd(quizId: quizId, result: result, questions: questions,);
+        _bodyState = QuizEnd(quizId: widget.id, result: result, questions: questions,);
       });
     }    
   }

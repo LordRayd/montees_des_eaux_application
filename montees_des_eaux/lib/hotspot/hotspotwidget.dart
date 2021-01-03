@@ -11,12 +11,23 @@ import 'package:photo_view/photo_view.dart';
 import 'dart:developer';
 class HotSpotWidget extends StatefulWidget {
 
+  /// L'identifiant du hotspot
   var id;
+  /// Le nom du hotspot
   String name;
+  /// La localisation (Ville)
   String location;
-  var coord;
+  /// La latitude a laquelle se trouve le hotspot
+  double latitude;
+  /// La longitude du hotspot
+  double longitude;
+  /// L'altitude du hotspot
+  double altitude;
+  /// Les informations qui caractérise le hotspot
   String info;
+  /// Une liste de Tags affecter au hotspot
   List<Tag> tags;
+  /// La liste des photos (url) du hotspot
   List<String> media;
 
   HotSpotWidget({
@@ -24,7 +35,9 @@ class HotSpotWidget extends StatefulWidget {
     @required this.id, 
     @required this.name, 
     @required this.location,
-    @required this.coord, 
+    @required this.latitude, 
+    @required this.longitude,
+    this.altitude, 
     @required this.info,
     @required this.tags,
     @required this.media,
@@ -38,15 +51,18 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
 
   bool _isfavorite = false;
 
+  /// Charge les favories et permet de dire si le hotspot actuel fait partie des favories
   loadFavorite() async {
     var hotspots = await Hive.openBox('hotspots');
     for(int i=0; i<hotspots.length; i++){
       if(hotspots.get(i) == widget.id){
         _isfavorite = true;
+        break;
       }
     }
   }
 
+  /// Definit les actions a faire lors de la pression sur le bouton favorie
   _favoriteButtonAction() {
     if(_isfavorite){
       removeFromLocal().then((result) => {
@@ -63,10 +79,12 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     }
   }
 
+  /// Ajoute le hotspot au favorie
   addLocal() async {
     var hotspots = await Hive.openBox('hotspots');
     hotspots.add(widget.id);
   }
+  /// Retire le hotspot des hotspots favories
   removeFromLocal() async{
     var hotspots = await Hive.openBox('hotspots');
     List<int> list = new List<int>();
@@ -81,6 +99,7 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     }
   }
 
+  /// Définit l'action de partage du hotspot
   _shareAction() async{
     final RenderBox box = context.findRenderObject();
     
@@ -89,6 +108,7 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
           sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
   }
 
+  /// Utilise la librairie flutter_swiper pour créer le slider d'image
   Swiper imageSlider(context){
     return new Swiper(
       autoplay: true,
@@ -111,15 +131,19 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     );
   }
 
+  /// Construit le slider des images
   _buildImageSlider(){
     return Container(
       constraints: BoxConstraints.expand(
         height: MediaQuery.of(context).size.height * 0.3
       ),
-      child: (widget.media.length == 1) ? Image.network(widget.media[0]) : imageSlider(context)
+      child: (widget.media.length == 1) 
+        ? Image.network(widget.media[0]) 
+        : imageSlider(context)
     );
   }
 
+  /// Construit l'affichage du nom du hotspot qui sera mit par dessus les photos
   _buildName(){
     return Container(
       alignment: AlignmentDirectional.center,
@@ -140,6 +164,9 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
       )
     );
   }
+
+  /// Contruit la partie haute du widget c'est a dire le defilement des images
+  /// et le texte par dessus
   _buildImage(){
     return Container(
       child: Stack(
@@ -152,6 +179,8 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     
   }
 
+  /// Retourne un textButton dont le texte est [text] 
+  /// et l'action lors de la pression est [onPressed] 
   _buildTextButton(text, onPressed){
     return TextButton(
       child: Text(
@@ -167,9 +196,7 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     );
   }
 
-  _navigationRedirection() async{
-    
-  }
+  /// Construit les boutons en dessous des photos dans widget 
   _buildButton(){
     return Row(
       children: [
@@ -177,7 +204,7 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.4,
           child: _buildTextButton("Y aller",() async{
-            final url = 'https://www.google.com/maps/search/?api=1&query=${widget.coord['lat']},${widget.coord['long']}';
+            final url = 'https://www.google.com/maps/search/?api=1&query=${widget.latitude},${widget.longitude}';
             if (await canLaunch(url)) {
               await launch(url);
             } else {
@@ -196,12 +223,14 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
     );
   }
 
+  /// Construit la liste des tags
   _buildTags(){
     return Row(
       children : widget.tags
     );
   }
 
+  /// Construit la liste des Informations
   _buildInformations(){
     return Column(
       children: [
@@ -222,21 +251,33 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
         Row(
           children: [
             SizedBox(width: MediaQuery.of(context).size.width * 0.05,),
-            Text(
-             widget.info, 
+            Expanded(
+              child: RichText(
+                maxLines: 200,
+                text: TextSpan(
+                  text : widget.info,
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                textAlign: TextAlign.justify,
+              ),
             ),
+            SizedBox(width: MediaQuery.of(context).size.width * 0.05,),            
           ],
         )
       ],
     );
   }
 
+  /// Permet la creation d'espace en hauteur
   _buildSpace(size){
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.1 * size,
     );
   }
 
+  /// Construit le bouton favorie après l'execution de [loadFavorite]
   _buildFavButton() {
     return FutureBuilder<dynamic>(
       future: loadFavorite(), // function where you call your api
@@ -276,14 +317,16 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
           _buildFavButton()
         ],
       ),
-      body: Column(
-        children: [
-          _buildImage(),
-          _buildSpace(0.1),
-          _buildButton(),
-          _buildSpace(0.1),
-          _buildInformations()
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildImage(),
+            _buildSpace(0.1),
+            _buildButton(),
+            _buildSpace(0.1),
+            _buildInformations()
+          ],
+        ),
       ),
     );
   }

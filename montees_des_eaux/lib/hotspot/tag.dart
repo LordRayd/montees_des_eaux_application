@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 class Tag extends StatefulWidget {
 
+  /// Le nom du tag
   String name;
+  /// L'url du tag
   String iconUrl;
 
   Tag({Key key,
@@ -16,6 +18,7 @@ class Tag extends StatefulWidget {
 
 class _TagState extends State<Tag> {
 
+  /// Definit l'action d'ouverture du tag
   _openTag(){
     showDialog(
       context: context,

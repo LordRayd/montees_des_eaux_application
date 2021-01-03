@@ -5,6 +5,7 @@ import 'package:montees_des_eaux/rewards/rewardwidget.dart';
 
 class RewardObtentionWidget extends StatefulWidget {
 
+  /// La liste des rewards obtenues
   List<RewardWidget> rewards;
 
   RewardObtentionWidget({
@@ -18,12 +19,15 @@ class RewardObtentionWidget extends StatefulWidget {
 
 class _RewardObtentionWidgetState extends State<RewardObtentionWidget> {
   
+  /// Le controlleur de page
   final _controller = PageController(
     initialPage: 0,
   );
 
+  /// L'index de la page afficher
   int _index = 0;
 
+  /// La liste des differents affichage d'icon possible
   List<Row> rows = List<Row>();
   
   @override
@@ -32,6 +36,7 @@ class _RewardObtentionWidgetState extends State<RewardObtentionWidget> {
     _buildRows();
   }
 
+  /// Construit les icons pour un index données
   Row _buildRow(index){
     List<Icon> icons = List<Icon>();
     for(int i=0; i<widget.rewards.length; i++){
@@ -49,12 +54,15 @@ class _RewardObtentionWidgetState extends State<RewardObtentionWidget> {
       children : icons,
     );
   }
+
+  /// Construit tous les affichage possible des icons
   _buildRows(){
     for(int i=0; i<widget.rewards.length; i++){
       rows.add(_buildRow(i));
     }
   }
 
+  /// Actions lors du changement d'affichage de trophée obtenues
   _onPageChange(int index){
     setState(() {
       _index = index;
@@ -78,8 +86,9 @@ class _RewardObtentionWidgetState extends State<RewardObtentionWidget> {
             },
           ),
         ), 
-        (widget.rewards.length > 1) ? rows[_index] : Container(height:0),
-        
+        (widget.rewards.length > 1) 
+          ? rows[_index] 
+          : Container(height:0),
       ],
     );
   }

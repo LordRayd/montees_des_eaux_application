@@ -11,49 +11,8 @@ class RewardsWidget extends StatefulWidget {
 
 class _RewardsWidgetState extends State<RewardsWidget> {
 
-  // A supprimer remplace la reponse du serveur pour l'instant
-  var resultHttpRequestTest = [
-    {
-      "id":"identifiant0", 
-      "previewText": "Text Preview Test  0", 
-      "description":"Une description plus complete de l'element 0", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 0
-    },{
-      "id":"identifiant1", 
-      "previewText": "Text Preview Test 1", 
-      "description":"Une description plus complete de l'element 1", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 1
-    },{
-      "id":"identifiant2", 
-      "previewText": "Text Preview Test 2", 
-      "description":"Une description plus complete de l'element 2", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 2
-    },{
-      "id":"identifiant3", 
-      "previewText": "Text Preview Test 3", 
-      "description":"Une description plus complete de l'element 3", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 3
-    },{
-      "id":"identifiant4", 
-      "previewText": "Text Preview Test 4", 
-      "description":"Une description plus complete de l'element 4", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 4
-    },{
-      "id":"identifiant5", 
-      "previewText": "Text Preview Test 5", 
-      "description":"Une description plus complete de l'element 5 pas obtenu", 
-      "media" : "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Colombus_Isle.JPG/1280px-Colombus_Isle.JPG", 
-      "level" : 2
-    }
-  ];
-
   /// Adresse url du serveur distant
-  String server_URL = 'https://localhost/';
+  String server_URL = 'https://montess-des-eaux-server.herokuapp.com/';
   /// Route sur le serveur menant aux rewards
   String route_URL = 'rewards';
   /// Liste des rewards existant
@@ -73,11 +32,15 @@ class _RewardsWidgetState extends State<RewardsWidget> {
       listRewards = List.generate(
         resultServer.length, // taille de la liste
         (i) => PreviewReward(
-          id : resultServer[i]['id'],
+          id : resultServer[i]['_id'],
           description: resultServer[i]['description'],
           previewText : resultServer[i]['previewText'],
           url : resultServer[i]['media'],
-          level : (resultLocal.contains(resultServer[i]['id']) ? resultServer[i]['level'] : 5),
+          level : (resultLocal.contains(resultServer[i]['_id']))
+            ? resultServer[i]['level'] 
+            : 5,
+          percentObtention: resultServer[i]['percentageObtention'].toDouble() ,
+          quizId: resultServer[i]['quizId'],
         )
       );
     });
@@ -85,15 +48,14 @@ class _RewardsWidgetState extends State<RewardsWidget> {
 
   /// Recupere les rewards depuis le serveur et met a jour la variable listRewards
   loadRewards() async {
-    //getRewardsFromServer().then((result) {
-      //if (null == result || result.toString().isEmpty) {
-        // Notify user of error.
-      //  return;
-      //}
-      getRewardsFromLocal().then((listId) { // TODO changer null par result
-        updateListRewards(resultHttpRequestTest,listId); // TODO changer resultHttpRequestTest par result
-      });
-    //});
+    await getRewardsFromServer().then((result) {
+      if (result != null && result.length > 0) {
+
+        getRewardsFromLocal().then((listId) {
+          updateListRewards(result, listId);
+        });
+      }
+    });
   }
 
   /// Recupere les identifiants des rewards qui sont posédés par l'utilisateur
@@ -113,7 +75,7 @@ class _RewardsWidgetState extends State<RewardsWidget> {
       final response = await client.get(server_URL+route_URL);
       // Important d'utilisé les bytes pour ne pas avoir de problème avec utf8
       final decodeData = utf8.decode(response.bodyBytes);
-      return decodeData;
+      return jsonDecode(decodeData);
     } catch (e) {
       // handle any exceptions here
     }

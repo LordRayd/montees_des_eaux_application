@@ -4,8 +4,8 @@ class Answer extends StatefulWidget {
 
   /// Le texte de la réponse
   String answer;
-  /// 1 si la question est correct, 0 sinon
-  int isGood;
+  /// true si la question est correct, false sinon
+  bool isGood;
   /// L'indexe de la position de la réponse dans la question
   int indexInList;
 

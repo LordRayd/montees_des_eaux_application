@@ -10,12 +10,15 @@ class Question extends StatefulWidget {
   List<Answer> answers;
   /// Le numéro de la question (commence a 1) utilisé pour l'affichage dans l'AppBar
   int index;
+  /// La justification de la réponse
+  String justification;
 
   Question({
     Key key, 
     @required this.statement, 
     @required this.answers, 
-    @required this.index
+    @required this.index,
+    @required this.justification,
   }) : super(key: key);
 
   @override
@@ -27,7 +30,8 @@ class _QuestionState extends State<Question> {
   /// Crée les lignes des réponses grace a l'attribut [widget.answers]
   List<Row> getAnswers(){
     List<Row> list = new List<Row>();
-    for(var i = 0; i < widget.answers.length-1; i+=2){
+    int i =0;
+    while(i < widget.answers.length-1){
       list.add(Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children:[
@@ -38,6 +42,18 @@ class _QuestionState extends State<Question> {
           SizedBox(
             width: MediaQuery.of(context).size.width*0.4,
             child: widget.answers[i+1]
+          ),
+        ]
+      ));
+      i+=2;
+    }
+    if(i<widget.answers.length){
+      list.add(Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children:[
+          SizedBox(
+            width: MediaQuery.of(context).size.width*0.4,
+            child: widget.answers[i]
           ),
         ]
       ));

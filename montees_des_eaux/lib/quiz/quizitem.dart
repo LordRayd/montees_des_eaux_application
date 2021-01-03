@@ -3,8 +3,8 @@ import 'package:montees_des_eaux/quiz/quiz.dart';
 
 class QuizItem extends StatefulWidget {
 
+  /// L'identifiant du quiz
   var id;
-
   /// Nom du possible quiz utilisable
   String name;
 

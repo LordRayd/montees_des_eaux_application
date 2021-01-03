@@ -43,7 +43,7 @@ class _QuizSelectionState extends State<QuizSelection> {
     return null;
   }
 
-  /// Retourn la liste des thèmes de quiz possible sous forme d'une listview de QuizItem
+  /// Retourne la liste des thèmes de quiz possible sous forme d'une listview de QuizItem
   _listQuiz(){
     return SingleChildScrollView( //MUST TO ADDED
       child: Column(
@@ -53,7 +53,10 @@ class _QuizSelectionState extends State<QuizSelection> {
             shrinkWrap: true, //MUST TO ADDED
             physics: NeverScrollableScrollPhysics(), //MUST TO ADDED
             itemCount: quiz.length,
-            itemBuilder: (BuildContext c, int index) => QuizItem(id: quiz[index]['_id'], name: quiz[index]['name']),
+            itemBuilder: (BuildContext c, int index) => QuizItem(
+              id: quiz[index]['_id'], 
+              name: quiz[index]['name']
+            ),
           ),
         ],
       ),
