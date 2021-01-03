@@ -6,9 +6,6 @@ import 'tag.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:hive/hive.dart';
 import 'package:share/share.dart';
-import 'package:photo_view/photo_view.dart';
-
-import 'dart:developer';
 class HotSpotWidget extends StatefulWidget {
 
   /// L'identifiant du hotspot
@@ -103,9 +100,11 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
   _shareAction() async{
     final RenderBox box = context.findRenderObject();
     
-    Share.share("Voici l'image principale de ${widget.name}",
-          subject: "Example de partage de hotspot",
-          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    Share.share(
+      "J'ai trouvé des informations très interressante sur : ${widget.name} ${widget.media[0]}",
+      subject: "Ce lieux est très intéressant",
+      sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
+    );
   }
 
   /// Utilise la librairie flutter_swiper pour créer le slider d'image

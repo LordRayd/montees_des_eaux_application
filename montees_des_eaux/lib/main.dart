@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:location/location.dart';
 import 'labonewswidget.dart';
 import 'homewidget.dart';
 import 'miscellaneouswidget.dart';
@@ -40,16 +41,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   
+  /// La page afficher, au debut affichera la carte
   int _selectedPage = 1;
+  /// la liste des pages principales affichables
   List<Widget> pageList = List<Widget>();
 
   @override
   void initState() {
+    _locationPermission();
     Hive.initFlutter();
     pageList.add(LaboNewsWidget());
     pageList.add(HomeWidget());
     pageList.add(MiscellaneousWidget());
     super.initState();
+  }
+
+  _locationPermission() async{
+    Location location = new Location();
+    await location.requestPermission();
   }
 
   @override
@@ -64,15 +73,15 @@ class _MyHomePageState extends State<MyHomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
-            label: "Information",
+            label: "Informations",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Accueil",
+            icon: Icon(Icons.language),
+            label: "Carte",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.games),
-            label: "Quiz",
+            icon: Icon(Icons.videogame_asset),
+            label: "Mon coin",
           )
         ],
         currentIndex: _selectedPage,

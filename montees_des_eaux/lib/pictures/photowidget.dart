@@ -80,9 +80,10 @@ class _PhotoWidgetState extends State<PhotoWidget> {
   _shareAction() async{
     final RenderBox box = context.findRenderObject();
     
-    Share.share("Voici l'image principale",
-          subject: "Example de partage de hotspot",
-          sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
+    Share.share("Regarde cette image ${widget.url}",
+      subject: "Cette image est incroyable",
+      sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size
+    );
   }
 
   /// Constuit le bouton de favorie après l'éxécution de [loadFavorite]

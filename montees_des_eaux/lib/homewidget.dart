@@ -356,10 +356,9 @@ class _HomeWidgetState extends State<HomeWidget> {
     return GoogleMap(
       mapType: _mapType,
       myLocationEnabled: true,
-      mapToolbarEnabled: false,
       initialCameraPosition: CameraPosition(
-        target: LatLng(47.640666, -2.951548),
-        zoom: 14,
+        target: LatLng(47.660548, -2.759460),
+        zoom: 12,
       ),
       onMapCreated: _onMapCreated,
       markers: _markers,
