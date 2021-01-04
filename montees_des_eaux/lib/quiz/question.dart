@@ -45,6 +45,11 @@ class _QuestionState extends State<Question> {
           ),
         ]
       ));
+      list.add(Row(
+        children: [
+          SizedBox(height:MediaQuery.of(context).size.height*0.005)
+        ],
+      ));
       i+=2;
     }
     if(i<widget.answers.length){
