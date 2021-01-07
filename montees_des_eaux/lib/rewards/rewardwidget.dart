@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/material.dart';
 import 'imagereward.dart';
 class RewardWidget extends StatefulWidget {
@@ -12,6 +13,10 @@ class RewardWidget extends StatefulWidget {
   String url ;
   /// Le niveau de la recompense
   int level;
+  // Le pourcentatage pour l'obtention
+  double percentObtention;
+  // L identifiant du quiz
+  var quizId;
 
   RewardWidget({
     Key key, 
@@ -19,7 +24,9 @@ class RewardWidget extends StatefulWidget {
     @required this.description, 
     @required this.previewText, 
     @required this.url, 
-    @required this.level
+    @required this.level,
+    @required this.percentObtention,
+    @required this.quizId,
   }) : super(key: key);
 
   @override

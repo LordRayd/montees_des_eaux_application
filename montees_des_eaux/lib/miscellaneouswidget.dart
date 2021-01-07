@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/material.dart';
 import 'rewards/rewardswidget.dart';
 import 'pictures/gallerywidget.dart';
@@ -48,6 +49,7 @@ class _MiscellaneousWidgetState extends State<MiscellaneousWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          title: Center(child: Text('Choix Quiz'),),
           content: QuizSelection(),
         );
       },
@@ -107,7 +109,7 @@ class _MiscellaneousWidgetState extends State<MiscellaneousWidget> {
           Expanded(
             flex:5, // 50%
             child: FractionallySizedBox(
-              alignment: Alignment.topCenter,
+              alignment: Alignment.center,
               widthFactor: 0.5, // 50%
               heightFactor: 0.2, // 20%
               child: TextButton(

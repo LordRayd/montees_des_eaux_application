@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:montees_des_eaux/newsitem.dart';
@@ -6,7 +7,6 @@ import 'package:webfeed/webfeed.dart';
 import 'package:http/http.dart' as http;
 
 import 'dart:convert';
-import 'dart:developer';
 
 class LaboNewsWidget extends StatefulWidget {
   @override

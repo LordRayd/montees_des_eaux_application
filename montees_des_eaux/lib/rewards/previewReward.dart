@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'rewardwidget.dart';
@@ -15,6 +16,10 @@ class PreviewReward extends StatefulWidget {
   String url ;
   /// Le niveau de la recompense
   int level;
+  // Le pourcentatage pour l'obtention
+  double percentObtention;
+  // L identifiant du quiz
+  var quizId;
 
   PreviewReward({
     Key key, 
@@ -22,7 +27,9 @@ class PreviewReward extends StatefulWidget {
     @required this.description, 
     @required this.previewText, 
     @required this.url, 
-    @required this.level
+    @required this.level,
+    @required this.percentObtention,
+    @required this.quizId,
   }) : super(key: key);
 
   @override
@@ -46,6 +53,8 @@ class _PreviewRewardState extends State<PreviewReward> {
             previewText: widget.previewText,
             url: widget.url,
             level: widget.level,
+            percentObtention: widget.percentObtention,
+            quizId: widget.quizId,
           ),
         );
       },

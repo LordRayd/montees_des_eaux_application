@@ -1,16 +1,21 @@
-# montees_des_eaux
+# Montées des Eaux
+## Développeur
+Samuel LE BERRE
+## Modification a apporter
+### Clé Api GOOGLE
+Il faut genérer une clé API google de la forme
+* AIzaSyDnNaRdTt-iQQjw-JscspGQxzt_o_E3AZ4
+et la copié dans android/app/src/main/AndroidManifest.xml
+ainsi que dans /ios/Runner/AppDelegate.swift
+### Adresse serveur
+Il faut modifier la variable **server_URL** par la nouvelle adresse du serveur en faisant attention de bien mettre un "/"après  
+Et ce dans les fichiers suivants de lib :
+* favoritehostspotwidget.dart
+* quiz.dart
+* quizend.dart
+* quizselection.dart
+* rewardswidget.dart
+* homewidget.dart
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Verifier que l'adresse du feed rss est correct
+Il vaut mieux vérifier que l'adresse url contenu dans la variable **FEED_URL** de labonewswidget.dart est bien **https://www.laboratoire-geosciences-ocean-ubs.fr/feed/**
