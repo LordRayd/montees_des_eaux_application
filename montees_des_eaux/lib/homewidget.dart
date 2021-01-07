@@ -1,9 +1,11 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:http/http.dart' as http;
+import 'package:location/location.dart';
 import 'dart:convert';
 
 import 'package:montees_des_eaux/hotspot/hotspotwidget.dart';
@@ -34,6 +36,8 @@ class _HomeWidgetState extends State<HomeWidget> {
   String route_URL_Polygons = 'polygons';
   /// La valeur du slider de temps
   double timevalue = 1;
+  /// Le zoom de base de la carte
+  double _defaultZoom = 12;
 
   @override
   void initState() {
@@ -235,7 +239,6 @@ class _HomeWidgetState extends State<HomeWidget> {
     setState(() {
       timevalue = newVal;
     });
-    print(timevalue);
     LatLngBounds coords = await _controller.getVisibleRegion();
     _loadBathymetrie(coords);
   }
@@ -339,8 +342,20 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   /// Recupère le controleur de la map dans la variable [_controller]
+  /// Redirige la position de base a la localisation en temps réel si activé
   void _onMapCreated(GoogleMapController controller){
     _controller = controller;
+    Location location = Location();
+    location.getLocation().then((LocationData currentLocation) => {
+      _controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target : LatLng(currentLocation.latitude,currentLocation.longitude),
+            zoom: _defaultZoom,
+          )
+        )
+      )
+    });
   }
 
   /// Action a faire a chaque fin de mouvement de carte
@@ -358,7 +373,7 @@ class _HomeWidgetState extends State<HomeWidget> {
       myLocationEnabled: true,
       initialCameraPosition: CameraPosition(
         target: LatLng(47.660548, -2.759460),
-        zoom: 12,
+        zoom: _defaultZoom,
       ),
       onMapCreated: _onMapCreated,
       markers: _markers,

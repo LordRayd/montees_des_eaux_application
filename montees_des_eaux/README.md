@@ -1,4 +1,6 @@
 # Montées des Eaux
+## Développeur
+Samuel LE BERRE
 ## Modification a apporter
 ### Clé Api GOOGLE
 Il faut genérer une clé API google de la forme

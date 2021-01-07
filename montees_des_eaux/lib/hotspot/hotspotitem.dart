@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/material.dart';
 import 'package:montees_des_eaux/hotspot/tag.dart';
 import 'package:montees_des_eaux/hotspot/hotspotwidget.dart';

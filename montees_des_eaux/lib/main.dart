@@ -1,3 +1,4 @@
+/// Samuel LE BERRE - JANVIER 2021
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:location/location.dart';
@@ -10,8 +11,15 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
     .then((_) {
-      runApp(new MyApp());
+      _locationPermission();
     });
+}
+
+/// Demande la permission d'acceder a la localisation avant de lancer l'app
+_locationPermission() async{
+  Location location = new Location();
+  await location.requestPermission();
+  runApp(new MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -48,17 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    _locationPermission();
     Hive.initFlutter();
     pageList.add(LaboNewsWidget());
     pageList.add(HomeWidget());
     pageList.add(MiscellaneousWidget());
     super.initState();
-  }
-
-  _locationPermission() async{
-    Location location = new Location();
-    await location.requestPermission();
   }
 
   @override
