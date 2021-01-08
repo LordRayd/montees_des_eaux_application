@@ -85,14 +85,14 @@ class _HotSpotWidgetState extends State<HotSpotWidget> {
   /// Retire le hotspot des hotspots favories
   removeFromLocal() async{
     var hotspots = await Hive.openBox('hotspots');
-    List<int> list = new List<int>();
+    List list = new List();
     for(int i=0; i<hotspots.length; i++){
       if(hotspots.get(i) != widget.id){
         list.add(hotspots.getAt(i));
       }
     }
     await hotspots.clear();
-    for(int nb in list){
+    for(var nb in list){
       hotspots.add(nb);
     }
   }
